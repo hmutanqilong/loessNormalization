@@ -1,4 +1,4 @@
 # loessNormalization
-RNDI loess normalization
+ADNI loess normalization
 
 run `run.R` in R.
