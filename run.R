@@ -1,7 +1,11 @@
+# Author Sili Fan (West Coast Metabolomics Center)
+
+
+
 source("utils.R")
 # ---- read data ---- #
 pacman::p_load(readxl, data.table,ggplot2,gridExtra,ggthemes)
-setwd("C:\\Users\\Sili Fan\\Desktop\\WORK\\WCMC\\projects\\Karla J Normalization 5-19-2017\\")
+setwd("C:\\Users\\Sili Fan\\Desktop\\WORK\\WCMC\\projects\\Karla J Normalization 5-19-2017\\") #set work directory.
 # positive mode or negative mode
 POSorNEG = "POS"
 data = read_excel("loess_batch_normalization_Experiment1 raw data Karla Juarez.xlsx",sheet = ifelse(POSorNEG=="POS",2,3))
