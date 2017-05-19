@@ -1,23 +1,36 @@
 source("utils.R")
 # ---- read data ---- #
 pacman::p_load(readxl, data.table,ggplot2,gridExtra,ggthemes)
+setwd("C:\\Users\\Sili Fan\\Desktop\\WORK\\WCMC\\projects\\Karla J Normalization 5-19-2017\\")
 # positive mode or negative mode
-POSorNEG = "NEG"
-data = read_excel("ADNI_April_2017_reprocessing_scientific_data.xlsx",sheet = ifelse(POSorNEG=="POS",2,3))
+POSorNEG = "POS"
+data = read_excel("loess_batch_normalization_Experiment1 raw data Karla Juarez.xlsx",sheet = ifelse(POSorNEG=="POS",2,3))
 f = data.table(data[3:nrow(data),c(1,2,3)]); colnames(f) = c("compound","RT","m.z")
 p = data.table(t(data[c(1,2),])); colnames(p) = c("SampleLabel","TimeStamp"); p = p[-c(1,2,3)];
 p$index = 1:nrow(p)
 order = order(p$TimeStamp)
 p$TimeStamp = as.numeric(p$TimeStamp)
 p = p[order,]
-p[,QC.index:=grepl("QC",SampleLabel)]
+p[,QC.index:=grepl("Pool",SampleLabel)]
+print(paste0("There are ",sum(p[,QC.index])," QCs found."))
 # define batches according to time.
-timeInterval = which(diff(p[,TimeStamp])%in%sort(diff(p[,TimeStamp]),decreasing = T)[1:3])
-batch = rep(LETTERS[1:4],diff(c(0,timeInterval,nrow(p))))
+num_of_batches = 4
+if(num_of_batches==1){
+  batch = "A"
+}else{
+  timeInterval = which(diff(p[,TimeStamp])%in%sort(diff(p[,TimeStamp]),decreasing = T)[1:3])
+  batch = rep(LETTERS[1:4],diff(c(0,timeInterval,nrow(p))))
+}
+plot(p$TimeStamp,col = as.factor(batch))
 p[,batches:=batch]
 e = as.matrix(data[3:nrow(data),4:ncol(data)]); e=apply(e,2,as.numeric)
 e = e[,order]
-batches=DefineBatches(e,f,p,auto.merge.batch = F)
+if(num_of_batches==1){
+  batches=matrix(batch,nrow = nrow(e),ncol = ncol(e))
+}else{
+  batches=DefineBatches(e,f,p,auto.merge.batch = F)
+}
+
 
 
 
@@ -37,7 +50,7 @@ for(i in 1:10){
   p[,QC.index.test := QC.index.test]
   
   
-  loess = loessNormalization(e,f,p,QC.index = p[,QC.index.train])
+  loess = loessNormalization(e,f,p,QC.index = p[,QC.index.train],batch = batches)
   e_loess = loess$e
   
   # # RSD.
@@ -81,9 +94,11 @@ fwrite(data.table(QC_raw.train.., QC_loess.train..,
                   sample_raw..,sample_loess..),"performance_NEG.csv")
 
 # loess normalization.
-loess = loessNormalization(e,f,p)
+start_time = Sys.time()
+loess = loessNormalization(e,f,p,batch = batches)
 e_loess = loess$e
-
+end_time = Sys.time()
+print(paste0("Loess normalization is done with ",format(end_time - start_time)))
 # save normalized data.
 fwrite(data.table(e_loess[,order(p$index)]),"loessNormalized.csv")
 
