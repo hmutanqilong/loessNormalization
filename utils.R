@@ -2,6 +2,7 @@
 # ---- define batches ---- #
 # Batches first defined as time intervals. Five batches defined. For each compound, if a t test shows a non-significant 
 # result between neighbor batches, then merge these two batches.
+# Sili Fan UC Davis May 2017
 DefineBatches = function(e,f,p,
                          time.intval.batch = TRUE, time = 'TimeStamp',number_of_batches=4,
                          batch = NULL,
