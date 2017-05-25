@@ -94,7 +94,7 @@ sample_loess.. = apply(sample_loess.,1,mean)
 
 fwrite(data.table(QC_raw.train.., QC_loess.train..,
                   QC_raw.test..,QC_loess.test..,
-                  sample_raw..,sample_loess..),"performance_NEG.csv")
+                  sample_raw..,sample_loess..),paste0("performance_",POSorNEG,".csv"))
 
 # loess normalization.
 start_time = Sys.time()
